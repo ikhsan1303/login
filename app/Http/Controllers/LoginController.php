@@ -6,16 +6,20 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Foundation\Auth\ThrottlesLogins;
 
 class LoginController extends Controller
 {
     use RegistersUsers;
+    use ThrottlesLogins;
 
     protected $redirectTo = RouteServiceProvider::HOME;
+    protected $maxAttempts = 3; // Jumlah maksimal percobaan login
+    protected $decayMinutes = 1; // Waktu dalam menit untuk melakukan throttle
 
     public function __construct()
     {
-        $this->middleware('guest');
+        $this->middleware('guest')->except('logout');
     }
 
     // Menampilkan form login
@@ -52,12 +56,9 @@ class LoginController extends Controller
      */
     public function logout(Request $request)
     {
+        $request->session()->flush();
+        $request->session()->regenerate();
         Auth::logout();
-
-        $request->session()->invalidate();
-
-        $request->session()->regenerateToken();
-
-        return redirect('/login')->with('success', 'Anda telah berhasil logout.');
+        return redirect('/login');
     }
 }

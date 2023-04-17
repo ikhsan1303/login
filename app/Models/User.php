@@ -37,25 +37,4 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-
-    public function canLogin()
-    {
-        $maxLoginAttempts = 3;
-        $lockoutTime = 30; // in seconds
-
-        if ($this->login_attempts >= $maxLoginAttempts && $this->last_login_attempt_at) {
-            $lastLoginAttempt = $this->last_login_attempt_at->addSeconds($lockoutTime);
-            return $lastLoginAttempt->isPast();
-        }
-
-        return true;
-    }
-
-    public function resetLoginAttempts()
-    {
-        $this->update([
-            'login_attempts' => 0,
-            'last_login_attempt_at' => null,
-        ]);
-    }
 }
